@@ -1,0 +1,37 @@
+graph LR
+    subgraph AWS_Cloud
+        subgraph Region_us-east-1
+            subgraph VPC_Publica_us_east_1
+                A[ALB]
+                B[MQTT Brokers]
+                C[NAT Gateway]
+            end
+
+            subgraph VPC_Privada_us_east_1
+                D[EKS Cluster]
+                E[Kafka MSK]
+                F[Flink]
+            end
+
+            A --> D
+            B --> D
+            C --> D
+            D --> E
+            D --> F
+            E --> F
+        end
+
+        subgraph Region_us-west-2_DR
+            subgraph VPC_Privada_us_west_2
+                G[RDS Replica]
+                H[Redis Cluster]
+            end
+
+            I[S3 Cross-Region Replication]
+        end
+
+        %% Conexiones entre regiones (simplificadas para el diagrama)
+        F -- Data Sync --> G
+        F -- Cache Sync --> H
+        I -- Replicates To --> Region_us-east-1
+    end

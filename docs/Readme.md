@@ -2,6 +2,14 @@ Arquitectura Detallada para Sistema Web/Móvil con GPS en Tiempo Real
 
 # 1. Diagrama de Componentes
 
+| **Dispositivos** (GPS IoT)      | **Backend** (Procesamiento) | **Almacenamiento** | **Frontend/Móvil** |
+|---------------------------------|-----------------------------|--------------------|---------------------|
+| - MQTT/CoAP                     | - API Gateway               | - PostgreSQL       | - Web Dashboard     |
+| - HTTP/2                        |   (Kong/Traefik)            |   (TimescaleDB)    |   (React + Mapbox)  |
+| - Protocol Buffers              | - Microservicios:           | - Redis (Caché)    | - Mobile App        |
+|                                 |   * Geolocation             | - Kafka (Logs)     |   (React Native)    |
+|                                 |   * Alerts                  |                    |                     |
+|                                 | - Flink/Spark (Streaming)   |                    |                     |
 
 ```mermaid
     flowchart LR
@@ -63,6 +71,7 @@ __API REST/GraphQL__ (Go/Elixir) sirve datos al __Frontend (React)__ y __App Mó
 __WebSocket__ para actualizaciones en vivo en el mapa.
 
 # 2. Estrategia para 50k → 500k Dispositivos
+
 ## 2.1 Escalabilidad Horizontal
 * __MQTT Broker Clusterizado__ (EMQX):
 	* Balanceo de carga con DNS Round Robin + Session Persistence.
@@ -88,3 +97,87 @@ __WebSocket__ para actualizaciones en vivo en el mapa.
 	* Preprocesamiento en dispositivos (ej: enviar datos solo si hay movimiento > 50 metros).
 * __Protocol Buffers__:
 	* Reduce tamaño de payload en un 60% vs JSON.
+
+# 3. Alta Disponibilidad (HA) y Recuperación ante Desastres (DR)
+
+## 3.1 Alta Disponibilidad
+* MQTT Broker:
+	* Cluster en múltiples AZs con réplica sincrónica (EMQX Enterprise).
+* Bases de Datos:
+	* PostgreSQL: Streaming replication con 1 líder + 2 réplicas.
+	* Redis: Cluster mode con sharding (16 particiones).
+* Kubernetes:
+	* Distribución de pods en ≥3 nodos (anti-affinity rules).
+
+## 3.2 Disaster Recovery
+* Backups Automatizados:
+	* PostgreSQL: WAL-G + Snapshots en S3 (retención de 30 días).
+	* Kafka: MirrorMaker a región secundaria (AWS us-east → us-west).
+* Recuperación:
+	* RTO < 15 min: Failover automático con Prometheus + Alertmanager.
+	* RPO < 1 min: Replicación asíncrona con lag controlado.
+
+# 4. Tecnologías Clave
+
+| Capa               | Tecnología              | Razón de Elección                              |
+|--------------------|-------------------------|------------------------------------------------|
+| __Comunicación__   | MQTT + TLS 1.3          | Bajo Overheah, ideal para IoT                  |
+| __Procesamiento__  | Apache Flink            | Estado consistente en ventanas de tiempo       |
+| __Almacenamiento__ | TimescaleDB             | Escalabilidad para series temporales + PostGIS |
+| __Frontend__       | React + Mapbox GL       | Renderizado rápido de mapas complejos          |
+| __Movíl__          | React Nativa + Maplibre | Mismo código para iOS/Android                  |
+
+
+# 5. Diagrama de Despliegue en AWS
+
+
+**AWS Cloud**
+
+| **Región us-east-1**       | **Región us-east-1** | **Región us-west-2** (DR) | **Región us-west-2** (DR)     |
+|----------------------------|----------------------|---------------------------|-------------------------------|
+| - VPC Publica:             | - VPC Privada:       | - VPC Privada:            | - S3 Cross-Region Replication |
+|   * ALB                    |   * EKS Cluster      |   * RDS Replica           |                               |
+|   * MQTT Brokers           |   * Kafka (MSK)      |   * Redis Cluster         |                               |
+|   * NAT Gateway            |   * Flink            |                           |                               |
+
+
+
+```mermaid
+graph LR
+    subgraph AWS_Cloud
+        subgraph Region_us-east-1
+            subgraph VPC_Publica_us_east_1
+                A[ALB]
+                B[MQTT Brokers]
+                C[NAT Gateway]
+            end
+
+            subgraph VPC_Privada_us_east_1
+                D[EKS Cluster]
+                E[Kafka MSK]
+                F[Flink]
+            end
+
+            A --> D
+            B --> D
+            C --> D
+            D --> E
+            D --> F
+            E --> F
+        end
+
+        subgraph Region_us-west-2_DR
+            subgraph VPC_Privada_us_west_2
+                G[RDS Replica]
+                H[Redis Cluster]
+            end
+
+            I[S3 Cross-Region Replication]
+        end
+
+        %% Conexiones entre regiones (simplificadas para el diagrama)
+        F -- Data Sync --> G
+        F -- Cache Sync --> H
+        I -- Replicates To --> Region_us-east-1
+    end
+```
