@@ -1,5 +1,7 @@
 Arquitectura Detallada para Sistema Web/Móvil con GPS en Tiempo Real
-1. Diagrama de Componentes
+
+# 1. Diagrama de Componentes
+
 
 ```mermaid
     flowchart LR
@@ -34,12 +36,28 @@ Arquitectura Detallada para Sistema Web/Móvil con GPS en Tiempo Real
         J --> G
 ```
 
-Flujo de Datos
+Este diagrama muestra cómo los diferentes componentes del sistema AVL se interconectan y colaboran:
+* __Dispositivos (GPS IoT)__: Representa los dispositivos que envían datos, utilizando protocolos como MQTT/CoAP, HTTP/2 y Protocol Buffers para la comunicación eficiente.
+* __Backend (Procesamiento)__: Esta sección central maneja la lógica de negocio y el procesamiento de datos.
+        • La __API Gateway__ actúa como el punto de entrada principal.
+        • Los __Microservicios__ (Geolocation, Alerts) se encargan de funciones específicas.
+        • __Flink/Spark (Streaming)__ procesa datos en tiempo real.
+* __Almacenamiento__: Aquí se gestionan los datos.
+        • __PostgreSQL (con TimescaleDB)__ se usa para almacenar datos temporales y series de tiempo.
+        • __Redis__ funciona como caché para un acceso rápido a los datos.
+        • __Kafka__ se utiliza para gestionar logs y flujos de eventos.
+* __Frontend/Móvil__: Permite la interacción del usuario.
+        • El __Web Dashboard__ proporciona una interfaz de usuario basada en React y Mapbox para visualizar y gestionarla información.
+        • La __Mobile App__ ofrece funcionalidades similares para dispositivos móviles, desarrollada con React Native.
 
-Dispositivos GPS → MQTT Broker (EMQX/Mosquitto) → Kafka (cola de mensajes).
 
-Procesador en Tiempo Real (Flink) consume datos de Kafka → Filtra/Agrega → Almacena en PostgreSQL/Redis.
 
-API REST/GraphQL (Go/Elixir) sirve datos al Frontend (React) y App Móvil (React Native).
+## 1.1. Flujo de Datos
 
-WebSocket para actualizaciones en vivo en el mapa.
+__Dispositivos GPS → MQTT Broker (EMQX/Mosquitto) → Kafka__ (cola de mensajes).
+
+__Procesador en Tiempo Real (Flink)__ consume datos de Kafka → Filtra/Agrega → Almacena en PostgreSQL/Redis.
+
+__API REST/GraphQL__ (Go/Elixir) sirve datos al __Frontend (React)__ y __App Móvil (React Native)__.
+
+__WebSocket__ para actualizaciones en vivo en el mapa.
