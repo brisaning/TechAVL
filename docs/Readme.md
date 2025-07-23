@@ -61,3 +61,30 @@ __Procesador en Tiempo Real (Flink)__ consume datos de Kafka → Filtra/Agrega �
 __API REST/GraphQL__ (Go/Elixir) sirve datos al __Frontend (React)__ y __App Móvil (React Native)__.
 
 __WebSocket__ para actualizaciones en vivo en el mapa.
+
+# 2. Estrategia para 50k → 500k Dispositivos
+## 2.1 Escalabilidad Horizontal
+* __MQTT Broker Clusterizado__ (EMQX):
+        • Balanceo de carga con DNS Round Robin + Session Persistence.
+        • Particionamiento por región geográfica (ej: topics gps/us-east, gps/eu-central).
+* __Kafka__:
+        • Aumento de partitions y consumers (Flink workers autoescalables).
+	• Compresión de mensajes (Snappy/Zstandard).
+* __API Gateway__:
+        • Balanceo de carga con DNS Round Robin.
+        • Rate limiting por dispositivo (100 req/s) usando Redis + Token Bucket.
+* __Flink__:
+        • Autoescalamiento de workers (Flink autoescalamiento).
+        • Balanceo de carga con DNS Round Robin.
+* __PostgreSQL__:
+        • Autoescalamiento de workers (PostgreSQL autoescalamiento).
+        • Compresión de datos (pg_bloat).
+* __Redis__:
+        • Autoescalamiento de workers (Redis autoescalamiento).
+        • Compresión de datos (Redis compression).     
+
+## 2.2 Optimización de Recursos
+* __Edge Computing__:
+        • Preprocesamiento en dispositivos (ej: enviar datos solo si hay movimiento > 50 metros).
+* __Protocol Buffers__:
+	• Reduce tamaño de payload en un 60% vs JSON.
