@@ -1,44 +1,14 @@
 Arquitectura Detallada para Sistema Web/Móvil con GPS en Tiempo Real
-1. Diagrama de Componentes
 
-    flowchart LR
-    subgraph Dispositivos_GPS_IoT["Dispositivos_GPS_IoT"]
-            A["MQTT/CoAP"]
-            B["HTTP/2"]
-            C["Protocol Buffers"]
-    end
-    subgraph Backend_Procesamiento["Backend_Procesamiento"]
-            D["API Gateway"]
-            E["Microservicios: Geolocation"]
-            F["Microservicios: Alerts"]
-            G["Flink/Spark Streaming"]
-    end
-    subgraph Almacenamiento["Almacenamiento"]
-            H["PostgreSQL"]
-            I["Redis Cache"]
-            J["Kafka Logs"]
-    end
-    subgraph Frontend_Movil["Frontend_Movil"]
-            K["Web Dashboard"]
-            L["Mobile App"]
-    end
-        A --> B
-        B --> C
-        C --> D
-        D --> E & F & J & K & L
-        E --> G & H
-        F --> G & H
-        G --> H & I
-        I --> K & L
-        J --> G
+Este proyecto se enfoca en la creación de una aplicación web y una aplicación móvil que permitan a los usuarios navegar por un mapa de una ciudad y obtener información detallada sobre los lugares y eventos que se encuentran en ese lugar. La aplicación web y la aplicación móvil se basan en una arquitectura de microservicios, donde cada servicio se encarga de una función específica, como la ubicación del usuario, la obtención de información sobre los lugares y eventos, y la visualización de la información en un mapa.
 
+Las documentación detallada de este proyecto se encuentra en la siguiente ruta: docs/README.md.
 
-Flujo de Datos
+El proyecto se puede dividir en los siguientes pasos:
 
-    Dispositivos GPS → MQTT Broker (EMQX/Mosquitto) → Kafka (cola de mensajes).
+1. Creación de la base de datos: Se crea una base de datos que almacene la información sobre los lugares y eventos que se encuentran en la ciudad. La base de datos se puede crear utilizando una herramienta como PostgreSQL o MongoDB.
 
-    Procesador en Tiempo Real (Flink) consume datos de Kafka → Filtra/Agrega → Almacena en PostgreSQL/Redis.
+2. Creación de los servicios: Se crean los servicios que se encargan de la obtención de información sobre los lugares y eventos, la ubicación del usuario, y la visualización de la información en un mapa. Estos servicios se pueden crear utilizando una herramienta como Node.js o Python.
 
-    API REST/GraphQL (Go/Elixir) sirve datos al Frontend (React) y App Móvil (React Native).
+3. Creación de la aplicación web: Se crea la aplicación web que permita a los usuarios navegar por un mapa de la ciudad y obtener información detallada sobre los lugares y eventos que se encuentran en ese lugar. La aplicación web se puede crear utilizando una herramienta como React.js y React Native.
 
-    WebSocket para actualizaciones en vivo en el mapa.
