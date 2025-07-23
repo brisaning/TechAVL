@@ -1,0 +1,34 @@
+---
+config:
+  layout: dagre
+---
+flowchart LR
+ subgraph Dispositivos_GPS_IoT["Dispositivos_GPS_IoT"]
+        A["MQTT/CoAP"]
+        B["HTTP/2"]
+        C["Protocol Buffers"]
+  end
+ subgraph Backend_Procesamiento["Backend_Procesamiento"]
+        D["API Gateway"]
+        E["Microservicios: Geolocation"]
+        F["Microservicios: Alerts"]
+        G["Flink/Spark Streaming"]
+  end
+ subgraph Almacenamiento["Almacenamiento"]
+        H["PostgreSQL"]
+        I["Redis Cache"]
+        J["Kafka Logs"]
+  end
+ subgraph Frontend_Movil["Frontend_Movil"]
+        K["Web Dashboard"]
+        L["Mobile App"]
+  end
+    A --> B
+    B --> C
+    C --> D
+    D --> E & F & J & K & L
+    E --> G & H
+    F --> G & H
+    G --> H & I
+    I --> K & L
+    J --> G
