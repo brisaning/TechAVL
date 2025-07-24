@@ -143,3 +143,9 @@ El stack React + Go + React Native ofrece:
 * ✅ Escalabilidad horizontal en backend y frontend.
 * ✅ Flexibilidad en el desarrollo con React Native y Go.
 * ✅ Conocimiento y soporte comunitario amplio.
+
+Este stack es ideal para equipos que priorizan eficiencia, consistencia entre plataformas y escalabilidad a largo plazo.
+
+[__Anterior__ Inicio](/Readme.md)
+
+[__Siguente__ Despliegue en contenedores](/docs/despliegue-en-contenedores.md)
