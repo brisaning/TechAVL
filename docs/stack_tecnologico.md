@@ -146,6 +146,6 @@ El stack React + Go + React Native ofrece:
 
 Este stack es ideal para equipos que priorizan eficiencia, consistencia entre plataformas y escalabilidad a largo plazo.
 
-[__Anterior__ Inicio](/Readme.md)
+[__Anterior__ Arquitectura](/docs/Readme.md)
 
 [__Siguente__ Despliegue en contenedores](/docs/despliegue-en-contenedores.md)

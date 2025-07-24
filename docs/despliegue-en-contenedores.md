@@ -199,46 +199,47 @@ spec:
           storage: 200Gi
 ```
 
-4. Mecanismos de Alta Disponibilidad
-4.1 Distribución Multi-AZ
+## 4. Mecanismos de Alta Disponibilidad
+### 4.1 Distribución Multi-AZ
 
-    Kafka:
+* Kafka:
 
-        3 brokers en distintas zonas (usando affinity para evitar colocar pods en la misma AZ).
+    * 3 brokers en distintas zonas (usando affinity para evitar colocar pods en la misma AZ).
 
-    PostgreSQL:
+* PostgreSQL:
 
-        Réplicas de lectura en otras AZs (configuradas via pgpool-II).
+    * Réplicas de lectura en otras AZs (configuradas via pgpool-II).
 
-4.2 Recuperación ante Desastres
+### 4.2 Recuperación ante Desastres
 
-    Backups automatizados:
+* Backups automatizados:
 
-        PostgreSQL: WAL-G + S3 (ej: wal-g backup-push /var/lib/postgresql/data).
+    * PostgreSQL: WAL-G + S3 (ej: wal-g backup-push /var/lib/postgresql/data).
 
-        Kafka: MirrorMaker a otro cluster en región secundaria.
+    * Kafka: MirrorMaker a otro cluster en región secundaria.
 
-    Restauración:
+* Restauración:
 
-        Scripts de recuperación en un Job de Kubernetes (ej: wal-g backup-fetch).
+    * Scripts de recuperación en un Job de Kubernetes (ej: wal-g backup-fetch).
 
-5. Monitoreo y Logging
-5.1 Stack Prometheus + Grafana
+## 5. Monitoreo y Logging
 
-    Configuración para Go (Prometheus metrics):
+### 5.1 Stack Prometheus + Grafana
+
+* Configuración para Go (Prometheus metrics):
 
 ```go
 import "github.com/prometheus/client_golang/prometheus"
 http.Handle("/metrics", promhttp.Handler())
 ```
 
-Dashboard de Grafana:
+* Dashboard de Grafana:
 
-    Métricas clave: Latencia de API, tasa de mensajes MQTT, uso de CPU/memoria por pod.
+    * Métricas clave: Latencia de API, tasa de mensajes MQTT, uso de CPU/memoria por pod.
 
-5.2 Logging con ELK
+## 5.2 Logging con ELK
 
-    Fluentd como DaemonSet:
+* Fluentd como DaemonSet:
 
 ```yaml
 apiVersion: apps/v1
@@ -256,8 +257,9 @@ spec:
           value: "elasticsearch.logging.svc.cluster.local"
 ```
 
-6. CI/CD con GitOps (FluxCD o ArgoCD)
-6.1 Pipeline Ejemplo (GitHub Actions)
+# 6. CI/CD con GitOps (FluxCD o ArgoCD)
+
+## 6.1 Pipeline Ejemplo (GitHub Actions)
 
 ```yaml
 name: Deploy to Kubernetes
@@ -280,7 +282,7 @@ jobs:
         kubectl set image deployment/api-gateway api-gateway=registry.example.com/api-gateway:$GITHUB_SHA
 ```
 
-Conclusión
+## 7. Conclusión
 
 Este diseño garantiza:
 * ✅ Escalabilidad horizontal para manejar 50k → 500k dispositivos.
@@ -289,7 +291,7 @@ Este diseño garantiza:
 * ✅ Recuperación ante desastres automatizada.
 
 
-Diagrama de despliegue
+## 8. Diagrama de despliegue
 
 ```mermaid
 graph LR
@@ -308,3 +310,7 @@ graph LR
     H --> C
     G --> D
 ```
+
+[__Anterior__ Stack Tecnologico](/docs/stack-tecnologico.md)
+
+[__Siguiente__ APIs](/docs/manejo-de-api.md)
