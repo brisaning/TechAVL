@@ -312,6 +312,6 @@ graph LR
     end
 ```
 
-[__Anterior__ Inicio](Readme.md)
+[__Anterior__ Inicio](../Readme.md)
 
 [__Siguente__ Stack Tecnólogico](/docs/stack_tecnologico.md)
