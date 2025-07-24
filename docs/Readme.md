@@ -195,10 +195,10 @@ Fallo de región	DNS failover a región secundaria (Route 53).
 
 ## 8. Conclusión
 La arquitectura propuesta garantiza:
-✅ Escalabilidad horizontal desde 50k hasta 500k dispositivos.
-✅ Latencia <500ms con Redis + Flink.
-✅ HA 99.99% mediante multi-AZ y replicación.
-✅ DR automatizado con RPO/RTO mínimos.
+- ✅ Escalabilidad horizontal desde 50k hasta 500k dispositivos.
+- ✅ Latencia <500ms con Redis + Flink.
+- ✅ HA 99.99% mediante multi-AZ y replicación.
+- ✅ DR automatizado con RPO/RTO mínimos.
 
 ___________________________________________________________________________
 
@@ -297,3 +297,19 @@ GEORADIUS fleet -74.0 40.7 10 km
 * Disponibilidad 99.99%: Multi-AZ + replicación cross-region.
 
 * Experiencia de usuario: Actualizaciones en tiempo real (<500ms) en mapas.
+
+```mermaid
+graph LR
+    A[Dispositivos GPS] --> B(MQTT Broker)
+    B --> C[Kafka]
+    C --> D[Flink]
+    D --> E{TimescaleDB/Redis}
+
+    subgraph Acceso de Aplicaciones
+        D -- Datos Procesados --> F[API]
+        E -- Datos Almacenados --> F
+        F --> G[React/React Native]
+    end
+```
+
+[__Siguente__ Stack Tecnólogico](/docs/stack_tecnologico.md)

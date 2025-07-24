@@ -1,0 +1,11 @@
+graph LR
+    A[Dispositivos GPS] --> B(MQTT Broker)
+    B --> C[Kafka]
+    C --> D[Flink]
+    D --> E{TimescaleDB/Redis}
+
+    subgraph Acceso de Aplicaciones
+        D -- Datos Procesados --> F[API]
+        E -- Datos Almacenados --> F
+        F --> G[React/React Native]
+    end
